@@ -437,8 +437,8 @@ function renderPublicServices() {
                 const btn = section.querySelector('.btn-glass-dark');
                 
                 if (eyebrow) eyebrow.textContent = stopNum;
-                if (giantText) giantText.textContent = title;
-                if (p) p.textContent = desc;
+                if (giantText) giantText.innerHTML = title;
+                if (p) p.innerHTML = desc;
                 if (btn) btn.innerHTML = `${bookText} <i class=\"fa-brands fa-whatsapp\"></i>`;
             }
 
@@ -447,7 +447,7 @@ function renderPublicServices() {
             cards.forEach(card => {
                 const h3 = card.querySelector('h3');
                 const span = card.querySelector('.glass-text span');
-                if (h3) h3.textContent = title;
+                if (h3) h3.innerHTML = title;
                 if (span) span.innerHTML = `${exploreText} <i class=\"fa-solid fa-arrow-right\"></i>`;
             });
         });
