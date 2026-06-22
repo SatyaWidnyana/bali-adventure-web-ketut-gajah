@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Ketut Gajah Bali</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h2>Admin Login</h2>
+            <p>Welcome back, Ketut. Please login to manage your website.</p>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required placeholder="admin@gmail.com">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary" id="loginBtn">Login</button>
+                <p id="loginError" class="error-text"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD (Hidden by default) -->
+    <div id="dashboardScreen" class="dashboard-container" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Panel</h3>
+            </div>
+            <ul class="nav-menu">
+                <li class="active" data-target="services"><i class="fa-solid fa-route"></i> Manage Services</li>
+                <li data-target="promos"><i class="fa-solid fa-bullhorn"></i> Manage Promos</li>
+            </ul>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- SERVICES SECTION -->
+            <section id="servicesSection" class="content-section active">
+                <div class="section-header">
+                    <h2>Manage Services</h2>
+                    <button class="btn-primary" id="addServiceBtn"><i class="fa-solid fa-plus"></i> Add New Service</button>
+                </div>
+
+                <div class="table-container">
+                    <table id="servicesTable">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="servicesTableBody">
+                            <!-- Data from Firebase will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PROMOS SECTION -->
+            <section id="promosSection" class="content-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Manage Promos (Flyers)</h2>
+                    <button class="btn-primary" id="addPromoBtn"><i class="fa-solid fa-plus"></i> Upload New Promo</button>
+                </div>
+                <p class="section-desc">Upload flyer/pamphlet with 1:1 (square) or 4:5 (portrait) ratio.</p>
+
+                <div class="promo-grid" id="promoGrid">
+                    <!-- Data from Firebase will be injected here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL FOR ADD/EDIT SERVICE -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeServiceModal">&times;</span>
+            <h2 id="serviceModalTitle">Add New Service</h2>
+            <form id="serviceForm">
+                <input type="hidden" id="serviceId">
+                <div class="input-group">
+                    <label for="serviceTitleEn">Title (English)</label>
+                    <input type="text" id="serviceTitleEn" required placeholder="e.g. Transport Service">
+                </div>
+                <div class="input-group">
+                    <label for="serviceTitleId">Judul (Indonesia)</label>
+                    <input type="text" id="serviceTitleId" required placeholder="e.g. Layanan Transportasi">
+                </div>
+                <div class="input-group">
+                    <label for="serviceDescEn">Description (English)</label>
+                    <textarea id="serviceDescEn" rows="3" required placeholder="Short text for the slider..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="serviceDescId">Deskripsi (Indonesia)</label>
+                    <textarea id="serviceDescId" rows="3" required placeholder="Deskripsi singkat..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="serviceImage">Image Upload</label>
+                    <input type="file" id="serviceImage" accept="image/*">
+                    <p class="help-text" id="serviceImageHelp">Leave blank to keep existing image (if editing).</p>
+                    <div id="serviceImagePreview" class="image-preview"></div>
+                </div>
+                <button type="submit" class="btn-primary" id="saveServiceBtn">Save Service</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL FOR ADD PROMO -->
+    <div id="promoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closePromoModal">&times;</span>
+            <h2>Upload Promo Flyer</h2>
+            <form id="promoForm">
+                <div class="input-group">
+                    <label for="promoTitle">Promo Title (Optional)</label>
+                    <input type="text" id="promoTitle" placeholder="e.g. Summer Discount">
+                </div>
+                <div class="input-group">
+                    <label for="promoImage">Flyer Image</label>
+                    <input type="file" id="promoImage" accept="image/*" required>
+                    <div id="promoImagePreview" class="image-preview"></div>
+                </div>
+                <button type="submit" class="btn-primary" id="savePromoBtn">Upload Promo</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

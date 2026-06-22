@@ -1,0 +1,439 @@
+/* admin.css */
+:root {
+    --primary: #1a1a1a;
+    --primary-hover: #333333;
+    --accent: #c9a050; /* Gold/sand color from the main theme */
+    --bg-color: #f4f4f5;
+    --card-bg: #ffffff;
+    --text-main: #333;
+    --text-muted: #666;
+    --border: #e0e0e0;
+    --danger: #dc3545;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Work Sans', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+}
+
+/* Typography */
+h1, h2, h3 { color: var(--primary); }
+
+/* Buttons */
+.btn-primary {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+.btn-danger {
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-edit {
+    background: #f8f9fa;
+    color: var(--primary);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Login Screen */
+.login-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Gradasi cream terang ala Bali Adventure */
+    background: linear-gradient(135deg, #F7F1E4 0%, #EEE3CD 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Tambahan hiasan pattern tipis di background login */
+.login-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(28,38,32,0.05) 1.2px, transparent 0);
+    background-size: 24px 24px;
+    z-index: 0;
+}
+
+.login-box {
+    position: relative;
+    z-index: 1;
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.login-box h2 {
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+.login-box p {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+.input-group {
+    margin-bottom: 16px;
+}
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+}
+.input-group input, .input-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+}
+.input-group input:focus, .input-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+.error-text {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 10px;
+}
+.help-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+}
+.sidebar {
+    width: 250px;
+    background: var(--card-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+}
+.sidebar-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+}
+.nav-menu {
+    list-style: none;
+    padding: 20px 0;
+    flex: 1;
+}
+.nav-menu li {
+    padding: 12px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+    transition: 0.2s;
+}
+.nav-menu li:hover, .nav-menu li.active {
+    background: #f8f9fa;
+    color: var(--primary);
+    font-weight: 500;
+    border-right: 3px solid var(--accent);
+}
+.sidebar-footer {
+    padding: 24px;
+    border-top: 1px solid var(--border);
+}
+.btn-logout {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.main-content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.section-desc {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+/* Tables */
+.table-container {
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+th {
+    background: #f8f9fa;
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+td {
+    font-size: 14px;
+}
+td img {
+    width: 60px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+.action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+/* Promo Grid */
+.promo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+.promo-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+.promo-card img {
+    width: 100%;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    display: block;
+}
+.promo-info {
+    padding: 12px;
+}
+.promo-info h4 {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+.delete-promo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal.active {
+    display: flex;
+}
+.modal-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+}
+.close-modal {
+    position: absolute;
+    top: 20px; right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+.image-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    margin-top: 10px;
+    border-radius: 6px;
+}
+
+/* Loading overlay */
+.loading-overlay {
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(255,255,255,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-size: 24px;
+}
+.loading-overlay.active {
+    display: flex;
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN (MOBILE & TABLET)
+   ============================================================ */
+@media (max-width: 768px) {
+    /* Login Screen */
+    .login-box {
+        margin: 20px;
+        padding: 24px;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-container {
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    /* Top Navigation (Sidebar converted to Topbar) */
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        background: var(--card-bg);
+        z-index: 10;
+    }
+    .sidebar-header {
+        padding: 16px 20px;
+        border-bottom: none;
+    }
+    .sidebar-footer {
+        padding: 16px 20px;
+        border-top: none;
+    }
+    .btn-logout {
+        width: auto;
+    }
+    .nav-menu {
+        width: 100%;
+        display: flex;
+        overflow-x: auto;
+        padding: 0;
+        border-top: 1px solid var(--border);
+        -webkit-overflow-scrolling: touch;
+    }
+    .nav-menu::-webkit-scrollbar {
+        height: 0px; /* hide scrollbar for clean look */
+    }
+    .nav-menu li {
+        padding: 14px 20px;
+        white-space: nowrap;
+        border-right: none !important;
+        border-bottom: 3px solid transparent;
+    }
+    .nav-menu li.active, .nav-menu li:hover {
+        background: #f8f9fa;
+        border-bottom: 3px solid var(--accent);
+    }
+
+    /* Main Content */
+    .main-content {
+        padding: 20px;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Table */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 6px;
+    }
+    table {
+        min-width: 600px; /* force scroll if screen is too small */
+    }
+
+    /* Promo Grid */
+    .promo-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    /* Modal */
+    .modal {
+        padding: 16px;
+    }
+    .modal-content {
+        padding: 24px 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .close-modal {
+        top: 16px;
+        right: 16px;
+    }
+}
