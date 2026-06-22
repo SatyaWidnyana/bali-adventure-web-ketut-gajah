@@ -160,7 +160,7 @@ const translations = {
     en: {
         title: "Ketut Gajah Bali | Field Notes from the Island of the Gods",
         navTag: "Transport Service & Adventure",
-        navHome: "Home", navStory: "The Story", navJourneys: "Journeys", navContact: "Contact", navBook: "Book Your Story",
+        navHome: "Home", navStory: "The Story", navJourneys: "Journeys", navMoments: "Moments", navContact: "Contact", navBook: "Book Your Story",
         heroEyebrow: "PRIVATE & PERSONAL JOURNEYS",
         heroTitle: "Awaken Your Soul<br>in <span class=\"highlight\">Bali</span>",
         heroBtn: "Begin Your Journey <i class=\"fa-solid fa-arrow-down\"></i>",
@@ -213,7 +213,7 @@ const translations = {
     id: {
         title: "Ketut Gajah Bali | Perjalanan Autentik di Pulau Dewata",
         navTag: "Layanan Transportasi & Petualangan",
-        navHome: "Beranda", navStory: "Kisah Kami", navJourneys: "Perjalanan", navContact: "Kontak", navBook: "Pesan Sekarang",
+        navHome: "Beranda", navStory: "Kisah Kami", navJourneys: "Perjalanan", navMoments: "Momen", navContact: "Kontak", navBook: "Pesan Sekarang",
         heroEyebrow: "PERJALANAN EKSKLUSIF & PRIBADI",
         heroTitle: "Bangkitkan Jiwa Anda<br>di <span class=\"highlight\">Bali</span>",
         heroBtn: "Mulai Perjalanan Anda <i class=\"fa-solid fa-arrow-down\"></i>",
@@ -540,7 +540,7 @@ async function loadPublicMoments() {
         querySnapshot.forEach((docSnap) => {
             const data = docSnap.data();
             html += `
-                <div class="moment-card">
+                <div class="moment-card" style="cursor: pointer;" onclick="openPromoLightbox('${escapeHTML(data.imageUrl || '')}')">
                     <img src="${escapeHTML(data.imageUrl || '')}" alt="${escapeHTML(data.title || 'Guest Moment')}" loading="lazy">
                 </div>
             `;
