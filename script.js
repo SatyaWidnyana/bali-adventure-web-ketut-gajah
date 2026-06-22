@@ -377,6 +377,7 @@ function openPromoLightbox(imageUrl) {
         document.body.style.overflow = 'hidden'; // prevent background scrolling
     }
 }
+window.openPromoLightbox = openPromoLightbox; // Expose to global scope for inline onclick
 
 const lightbox = document.getElementById('promoLightbox');
 const lightboxOverlay = document.getElementById('lightboxOverlay');
