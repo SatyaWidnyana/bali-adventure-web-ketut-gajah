@@ -205,6 +205,8 @@ const translations = {
         fbTitle: "Facebook", igTitle: "Instagram", openMap: "Open in Google Maps",
         reviewTitle: "Loved your trip with us?", reviewDesc: "Share your story with the world on Google.",
         reviewBtn: "<i class=\"fa-brands fa-google\"></i> Leave a Review",
+        momentsEyebrow: "Shared Smiles",
+        momentsTitle: "Our Moments",
         footerTag: "\"Your Smile is Our Happiness\"",
         copyText: "&copy; 2026 KETUT GAJAH BALI — ALL RIGHTS RESERVED"
     },
@@ -256,6 +258,8 @@ const translations = {
         fbTitle: "Facebook", igTitle: "Instagram", openMap: "Buka di Google Maps",
         reviewTitle: "Menyukai perjalanan bersama kami?", reviewDesc: "Bagikan kisah Anda kepada dunia melalui Google.",
         reviewBtn: "<i class=\"fa-brands fa-google\"></i> Tulis Ulasan",
+        momentsEyebrow: "Senyum Bersama",
+        momentsTitle: "Momen Kami",
         footerTag: "\"Senyum Anda adalah Kebahagiaan Kami\"",
         copyText: "&copy; 2026 KETUT GAJAH BALI — HAK CIPTA DILINDUNGI"
     }
@@ -515,3 +519,38 @@ function renderPublicServices() {
     
     isServicesRendered = true;
 }
+
+// ---------------- LOAD PUBLIC MOMENTS ---------------- //
+const publicMomentsGrid = document.getElementById('publicMomentsGrid');
+const momentsSection = document.getElementById('moments');
+
+async function loadPublicMoments() {
+    if (!publicMomentsGrid) return;
+    try {
+        const q = query(collection(db, "moments"), orderBy("createdAt", "asc"));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            momentsSection.style.display = 'none';
+            return;
+        }
+
+        momentsSection.style.display = 'block';
+        let html = '';
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            html += `
+                <div class="moment-card">
+                    <img src="${escapeHTML(data.imageUrl || '')}" alt="${escapeHTML(data.title || 'Guest Moment')}" loading="lazy">
+                </div>
+            `;
+        });
+        publicMomentsGrid.innerHTML = html;
+    } catch (error) {
+        console.error("Error loading public moments: ", error);
+        momentsSection.style.display = 'none';
+    }
+}
+
+// Initial calls
+loadPublicMoments();

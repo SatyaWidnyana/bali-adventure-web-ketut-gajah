@@ -102,6 +102,7 @@ onAuthStateChanged(auth, (user) => {
         dashboardScreen.style.display = 'flex';
         loadServices();
         loadPromos();
+        loadMoments();
     } else {
         loginScreen.style.display = 'flex';
         dashboardScreen.style.display = 'none';
@@ -429,6 +430,100 @@ window.deletePromo = async (id) => {
         } catch (error) {
             hideLoading();
             console.error("Error deleting promo: ", error);
+        }
+    }
+};
+
+// ---------------- MOMENTS CRUD ---------------- //
+const momentModal = document.getElementById('momentModal');
+const momentForm = document.getElementById('momentForm');
+const momentGrid = document.getElementById('momentGrid');
+
+document.getElementById('addMomentBtn').addEventListener('click', () => {
+    momentForm.reset();
+    momentModal.classList.add('active');
+});
+document.getElementById('closeMomentModal').addEventListener('click', () => {
+    momentModal.classList.remove('active');
+});
+
+async function loadMoments() {
+    if (!momentGrid) return;
+    momentGrid.innerHTML = '<p>Loading moments...</p>';
+    try {
+        const q = query(collection(db, "moments"), orderBy("createdAt", "asc"));
+        const querySnapshot = await getDocs(q);
+        momentGrid.innerHTML = "";
+        
+        if (querySnapshot.empty) {
+            momentGrid.innerHTML = '<p>No moments found.</p>';
+            return;
+        }
+
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const id = docSnap.id;
+            
+            const card = document.createElement('div');
+            card.className = 'promo-card';
+            card.innerHTML = `
+                <button class="delete-promo" onclick="deleteMoment('${id}')"><i class="fa-solid fa-trash"></i></button>
+                <img src="${escapeHTML(data.imageUrl || '')}" alt="Moment">
+                <div class="promo-info">
+                    <h4>${escapeHTML(data.title || 'Guest Photo')}</h4>
+                </div>
+            `;
+            momentGrid.appendChild(card);
+        });
+    } catch (error) {
+        console.error("Error loading moments: ", error);
+        momentGrid.innerHTML = '<p>Error loading moments.</p>';
+    }
+}
+
+momentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showLoading();
+    
+    const title = document.getElementById('momentTitle').value;
+    const fileInput = document.getElementById('momentImage');
+
+    if (fileInput.files.length === 0) {
+        alert("Please select a photo!");
+        hideLoading();
+        return;
+    }
+
+    try {
+        // Compress the image to a square/landscape friendly size
+        const imageUrl = await compressImage(fileInput.files[0], 800);
+
+        await addDoc(collection(db, "moments"), {
+            title: title,
+            imageUrl: imageUrl,
+            createdAt: serverTimestamp()
+        });
+
+        momentModal.classList.remove('active');
+        loadMoments();
+        hideLoading();
+    } catch (error) {
+        console.error("Error uploading moment: ", error);
+        alert("Error uploading moment.");
+        hideLoading();
+    }
+});
+
+window.deleteMoment = async (id) => {
+    if (confirm("Are you sure you want to delete this moment?")) {
+        try {
+            showLoading();
+            await deleteDoc(doc(db, "moments", id));
+            loadMoments();
+            hideLoading();
+        } catch (error) {
+            hideLoading();
+            console.error("Error deleting moment: ", error);
         }
     }
 };
