@@ -337,6 +337,9 @@ nav.scrolled .btn-primary:hover, nav.scrolled .btn-glass:hover {
 .unified-content p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 30px; text-align: justify; }
 .unified-content .eyebrow { color: var(--marigold-d); }
 
+.consult-text { display: block; margin-top: 14px; font-size: 0.88rem; color: var(--text-muted); font-family: 'Work Sans', sans-serif; font-style: normal; font-weight: 500; letter-spacing: 0.02em; transition: color 0.3s ease; text-decoration: underline; text-decoration-color: rgba(110, 99, 83, 0.4); text-underline-offset: 4px; }
+.consult-text:hover { color: var(--marigold-d); text-decoration-color: var(--marigold-d); }
+
 /* ============================================================
    5. CONTACT & LOCATION
    ============================================================ */

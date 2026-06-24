@@ -430,6 +430,7 @@ function renderPublicServices() {
             const desc = escapeHTML(currentLang === 'id' ? (data.desc_id || data.desc_en || data.description) : (data.desc_en || data.description));
             const stopText = currentLang === 'id' ? 'Kegiatan' : 'Activity';
             const bookText = currentLang === 'id' ? 'Pesan Sekarang' : 'Book Now';
+            const consultText = currentLang === 'id' ? 'Konsultasi Gratis? Tanya harga dan detail di sini.' : 'Free Consultation? Ask for price & details here.';
             const exploreText = currentLang === 'id' ? 'Jelajahi' : 'Explore';
             const stopNum = `${stopText} ${String(i + 1).padStart(2, '0')}`;
 
@@ -440,11 +441,13 @@ function renderPublicServices() {
                 const giantText = section.querySelector('.giant-text');
                 const p = section.querySelector('p');
                 const btn = section.querySelector('.btn-glass-dark');
+                const consultEl = section.querySelector('.consult-text');
                 
                 if (eyebrow) eyebrow.textContent = stopNum;
                 if (giantText) giantText.innerHTML = title;
                 if (p) p.innerHTML = desc;
                 if (btn) btn.innerHTML = `${bookText} <i class=\"fa-brands fa-whatsapp\"></i>`;
+                if (consultEl) consultEl.innerHTML = consultText;
             }
 
             // 2. Update Marquee Cards (Including duplicates)
@@ -488,6 +491,7 @@ function renderPublicServices() {
         const desc = escapeHTML(currentLang === 'id' ? (data.desc_id || data.desc_en || data.description) : (data.desc_en || data.description));
         const stopText = currentLang === 'id' ? 'Kegiatan' : 'Activity';
         const bookText = currentLang === 'id' ? 'Pesan Sekarang' : 'Book Now';
+        const consultText = currentLang === 'id' ? 'Konsultasi Gratis? Tanya harga dan detail di sini.' : 'Free Consultation? Ask for price & details here.';
 
         const sectionId = `service-${data.id}`;
         const stopNum = `${stopText} ${String(i + 1).padStart(2, '0')}`;
@@ -506,6 +510,7 @@ function renderPublicServices() {
                         <h2 class="giant-text">${title}</h2>
                         <p>${desc}</p>
                         <a href="https://wa.me/6281246211923" class="btn-glass-dark" target="_blank">${bookText} <i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="https://wa.me/6281246211923" class="consult-text" target="_blank">${consultText}</a>
                     </div>
                 </div>
             </div>
