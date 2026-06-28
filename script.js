@@ -36,6 +36,72 @@ function escapeHTML(str) {
     );
 }
 
+// Validates and sanitizes image URLs to prevent injection
+function sanitizeImageUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    // Allow data: URLs (base64 images) and https: URLs only
+    if (url.startsWith('data:image/')) return url;
+    try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'https:') return '';
+        return url;
+    } catch {
+        return '';
+    }
+}
+
+// ============================================================
+// WHATSAPP LINK INTEGRITY PROTECTION
+// Mencegah hacker mengganti nomor WA via XSS/script injection
+// ============================================================
+const TRUSTED_WA_NUMBER = '6281246211923';
+const TRUSTED_WA_URL = `https://wa.me/${TRUSTED_WA_NUMBER}`;
+
+function verifyWhatsAppLinks() {
+    const allWaLinks = document.querySelectorAll('a[href*="wa.me"]');
+    allWaLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        // Check if the WA link points to the trusted number
+        if (href && href.includes('wa.me') && !href.includes(TRUSTED_WA_NUMBER)) {
+            // ALERT: Nomor WA telah diubah oleh pihak tidak bertanggung jawab!
+            console.error('[SECURITY] WhatsApp link tampering detected! Restoring original number.');
+            link.setAttribute('href', TRUSTED_WA_URL);
+            // Optional: send alert to admin (you can add a webhook here later)
+        }
+    });
+}
+
+// Run integrity check after page loads and periodically
+setTimeout(verifyWhatsAppLinks, 2000);
+setInterval(verifyWhatsAppLinks, 10000); // Check every 10 seconds
+
+// Protect against DOM manipulation using MutationObserver
+const waObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'href') {
+            const target = mutation.target;
+            if (target.tagName === 'A' && target.href.includes('wa.me') && !target.href.includes(TRUSTED_WA_NUMBER)) {
+                console.error('[SECURITY] Live WA link tampering blocked!');
+                target.setAttribute('href', TRUSTED_WA_URL);
+            }
+        }
+        // Also check if new nodes are added with wrong WA links
+        if (mutation.addedNodes.length > 0) {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === 1) { // Element node
+                    const links = node.querySelectorAll ? node.querySelectorAll('a[href*="wa.me"]') : [];
+                    links.forEach(link => {
+                        if (!link.href.includes(TRUSTED_WA_NUMBER)) {
+                            link.setAttribute('href', TRUSTED_WA_URL);
+                        }
+                    });
+                }
+            });
+        }
+    }
+});
+waObserver.observe(document.body, { attributes: true, childList: true, subtree: true, attributeFilter: ['href'] });
+
 // 1. Smart Navbar Scroll Effect
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
@@ -372,7 +438,13 @@ function openPromoLightbox(imageUrl) {
     const lightbox = document.getElementById('promoLightbox');
     const lightboxImg = document.getElementById('lightboxImg');
     if (lightbox && lightboxImg) {
-        lightboxImg.src = imageUrl;
+        // Validate URL before setting as image source
+        const safeUrl = sanitizeImageUrl(imageUrl);
+        if (!safeUrl) {
+            console.error('[SECURITY] Blocked suspicious image URL:', imageUrl);
+            return;
+        }
+        lightboxImg.src = safeUrl;
         lightbox.classList.add('active');
         document.body.style.overflow = 'hidden'; // prevent background scrolling
     }
@@ -468,7 +540,7 @@ function renderPublicServices() {
         const exploreText = currentLang === 'id' ? 'Jelajahi' : 'Explore';
         return `
             <a href="#service-${data.id}" class="slide-card" data-service-id="${data.id}">
-                <img src="${data.imageUrl}" alt="${title}" loading="lazy">
+                <img src="${sanitizeImageUrl(data.imageUrl)}" alt="${title}" loading="lazy">
                 <div class="glass-overlay">
                     <span class="stop-num">${String(i + 1).padStart(2, '0')}</span>
                     <div class="glass-text">
@@ -503,7 +575,7 @@ function renderPublicServices() {
             <div class="container animate-on-scroll">
                 <div class="unified-grid ${reverseClass}">
                     <div class="unified-img">
-                        <img src="${data.imageUrl}" alt="${title}" loading="lazy">
+                        <img src="${sanitizeImageUrl(data.imageUrl)}" alt="${title}" loading="lazy">
                     </div>
                     <div class="unified-content">
                         <span class="eyebrow">${stopNum}</span>
@@ -542,16 +614,22 @@ async function loadPublicMoments() {
         }
 
         momentsSection.style.display = 'block';
-        let html = '';
+        publicMomentsGrid.innerHTML = ''; // Clear before re-render
         querySnapshot.forEach((docSnap) => {
             const data = docSnap.data();
-            html += `
-                <div class="moment-card" style="cursor: pointer;" onclick="openPromoLightbox('${escapeHTML(data.imageUrl || '')}')">
-                    <img src="${escapeHTML(data.imageUrl || '')}" alt="${escapeHTML(data.title || 'Guest Moment')}" loading="lazy">
-                </div>
-            `;
+            const safeUrl = sanitizeImageUrl(data.imageUrl || '');
+            const card = document.createElement('div');
+            card.className = 'moment-card';
+            card.style.cursor = 'pointer';
+            // Safe event binding — no inline onclick, prevents XSS
+            card.addEventListener('click', () => openPromoLightbox(safeUrl));
+            const img = document.createElement('img');
+            img.src = safeUrl;
+            img.alt = escapeHTML(data.title || 'Guest Moment');
+            img.loading = 'lazy';
+            card.appendChild(img);
+            publicMomentsGrid.appendChild(card);
         });
-        publicMomentsGrid.innerHTML = html;
     } catch (error) {
         console.error("Error loading public moments: ", error);
         momentsSection.style.display = 'none';

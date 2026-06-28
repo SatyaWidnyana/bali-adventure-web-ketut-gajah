@@ -3,5 +3,8 @@ Allow: /
 Disallow: /admin.html
 Disallow: /admin.css
 Disallow: /admin.js
+Disallow: /secret.html
+Disallow: /secret.css
+Disallow: /secret.js
 
 Sitemap: https://ketutgajahbaliadventure.com/sitemap.xml
