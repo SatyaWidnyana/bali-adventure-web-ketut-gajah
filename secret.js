@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // Firebase Configuration from User
 const firebaseConfig = {
@@ -17,7 +16,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 // DOM Elements
 const loginScreen = document.getElementById('loginScreen');
@@ -62,8 +60,8 @@ function escapeHTML(str) {
 }
 
 // ---------------- IMAGE COMPRESSION UTILITY ---------------- //
-// Compress image to Base64 string to avoid Firebase Storage billing
-function compressImage(file, maxWidth = 800) {
+// Compress image to Base64 string heavily to avoid QuotaExceededError
+function compressImage(file, maxWidth = 400) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -84,8 +82,8 @@ function compressImage(file, maxWidth = 800) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                // Compress as JPEG 70% quality to ensure small size (< 100kb usually)
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                // Compress as JPEG 50% quality to ensure extremely small size (10kb - 20kb)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
                 resolve(dataUrl);
             };
             img.onerror = reject;
@@ -301,9 +299,9 @@ serviceForm.addEventListener('submit', async (e) => {
     try {
         let imageUrl = null;
 
-        // If file is selected, compress it to base64
+        // If file is selected, compress it heavily to base64
         if (fileInput.files.length > 0) {
-            imageUrl = await compressImage(fileInput.files[0], 800);
+            imageUrl = await compressImage(fileInput.files[0], 400);
         }
 
         const serviceData = {
@@ -458,16 +456,24 @@ function renderPromosGrid(querySnapshotOrArray, isArray = false) {
         const card = document.createElement('div');
         card.className = 'promo-card';
         card.innerHTML = `
-            <button class="delete-promo" onclick="deletePromo('${id}', '${data.imagePath || ''}')"><i class="fa-solid fa-trash"></i></button>
+            <button class="delete-promo" data-delete-id="${id}"><i class="fa-solid fa-trash"></i></button>
             <img src="${escapeHTML(data.imageUrl || '')}" alt="Promo">
             <div class="promo-info">
-                <h4>${escapeHTML(data.title || 'Promo Flyer')}</h4>
+                <h4>${escapeHTML(data.title || 'Promo')}</h4>
             </div>
         `;
         promoGrid.appendChild(card);
     });
     return items;
 }
+
+promoGrid.addEventListener('click', (e) => {
+    const deleteBtn = e.target.closest('.delete-promo[data-delete-id]');
+    if (deleteBtn) {
+        const id = deleteBtn.dataset.deleteId;
+        if (id) window.deletePromo(id);
+    }
+});
 
 async function loadPromos() {
     const cachedData = localStorage.getItem('kgb_admin_promos');
@@ -504,7 +510,7 @@ promoForm.addEventListener('submit', async (e) => {
     }
 
     try {
-        const imageUrl = await compressImage(fileInput.files[0], 800);
+        const imageUrl = await compressImage(fileInput.files[0], 400);
 
         await addDoc(collection(db, "promos"), {
             title: title,
@@ -527,6 +533,7 @@ window.deletePromo = async (id) => {
         try {
             showLoading();
             await deleteDoc(doc(db, "promos", id));
+            localStorage.removeItem('kgb_admin_promos');
             loadPromos();
             hideLoading();
         } catch (error) {
@@ -568,7 +575,7 @@ function renderMomentsGrid(querySnapshotOrArray, isArray = false) {
         const card = document.createElement('div');
         card.className = 'promo-card';
         card.innerHTML = `
-            <button class="delete-promo" onclick="deleteMoment('${id}')"><i class="fa-solid fa-trash"></i></button>
+            <button class="delete-promo" data-delete-id="${id}"><i class="fa-solid fa-trash"></i></button>
             <img src="${escapeHTML(data.imageUrl || '')}" alt="Moment">
             <div class="promo-info">
                 <h4>${escapeHTML(data.title || 'Guest Photo')}</h4>
@@ -578,6 +585,14 @@ function renderMomentsGrid(querySnapshotOrArray, isArray = false) {
     });
     return items;
 }
+
+momentGrid.addEventListener('click', (e) => {
+    const deleteBtn = e.target.closest('.delete-promo[data-delete-id]');
+    if (deleteBtn) {
+        const id = deleteBtn.dataset.deleteId;
+        if (id) window.deleteMoment(id);
+    }
+});
 
 async function loadMoments() {
     if (!momentGrid) return;
@@ -615,8 +630,7 @@ momentForm.addEventListener('submit', async (e) => {
     }
 
     try {
-        // Compress the image to a square/landscape friendly size
-        const imageUrl = await compressImage(fileInput.files[0], 800);
+        const imageUrl = await compressImage(fileInput.files[0], 400);
 
         await addDoc(collection(db, "moments"), {
             title: title,
@@ -639,6 +653,7 @@ window.deleteMoment = async (id) => {
         try {
             showLoading();
             await deleteDoc(doc(db, "moments", id));
+            localStorage.removeItem('kgb_admin_moments');
             loadMoments();
             hideLoading();
         } catch (error) {
