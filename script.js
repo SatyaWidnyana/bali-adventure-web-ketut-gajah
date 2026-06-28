@@ -205,8 +205,8 @@ if (wrapper) {
 // 3. Smooth Fade-In-Up Animations
 const observerOptions = {
     root: null,
-    rootMargin: '0px',
-    threshold: 0.15
+    rootMargin: '0px 0px -50px 0px', // Trigger slightly before the bottom
+    threshold: 0 // Prevents bug on tall elements (like mobile grids) where 15% is taller than the screen
 };
 
 const observer = new IntersectionObserver((entries, observer) => {
