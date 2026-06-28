@@ -39,6 +39,10 @@ function escapeHTML(str) {
 // Validates and sanitizes image URLs to prevent injection
 function sanitizeImageUrl(url) {
     if (!url || typeof url !== 'string') return '';
+    
+    // SECURITY PATCH: Prevent breaking out of HTML attributes
+    url = url.replace(/["']/g, ''); 
+
     // Allow data: URLs (base64 images) and https: URLs only
     if (url.startsWith('data:image/')) return url;
     try {

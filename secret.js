@@ -327,10 +327,14 @@ serviceForm.addEventListener('submit', async (e) => {
                 const oldImg = row.querySelector('img').src;
                 const newImg = imageUrl ? imageUrl : oldImg;
                 
+                const safeTitleEn = escapeHTML(titleEn);
+                const safeDescEn = escapeHTML(descEn);
+                const safeImg = escapeHTML(newImg);
+
                 row.innerHTML = `
-                    <td><img src="${newImg}" alt="img" onerror="this.src='https://via.placeholder.com/60x40'"></td>
-                    <td>${titleEn}</td>
-                    <td>${descEn.substring(0, 50)}...</td>
+                    <td><img src="${safeImg}" alt="img" onerror="this.src='https://via.placeholder.com/60x40'"></td>
+                    <td>${safeTitleEn}</td>
+                    <td>${safeDescEn.substring(0, 50)}...</td>
                     <td>
                         <div class="action-btns">
                             <button class="btn-edit" onclick="editService('${id}')"><i class="fa-solid fa-pen"></i></button>
@@ -347,10 +351,14 @@ serviceForm.addEventListener('submit', async (e) => {
             // Instantly append new row
             const tr = document.createElement('tr');
             tr.id = `row-service-${docRef.id}`;
+            const safeTitleEn = escapeHTML(titleEn);
+            const safeDescEn = escapeHTML(descEn);
+            const safeImg = escapeHTML(imageUrl || '');
+
             tr.innerHTML = `
-                <td><img src="${imageUrl || ''}" alt="img" onerror="this.src='https://via.placeholder.com/60x40'"></td>
-                <td>${titleEn}</td>
-                <td>${descEn.substring(0, 50)}...</td>
+                <td><img src="${safeImg}" alt="img" onerror="this.src='https://via.placeholder.com/60x40'"></td>
+                <td>${safeTitleEn}</td>
+                <td>${safeDescEn.substring(0, 50)}...</td>
                 <td>
                     <div class="action-btns">
                         <button class="btn-edit" onclick="editService('${docRef.id}')"><i class="fa-solid fa-pen"></i></button>
