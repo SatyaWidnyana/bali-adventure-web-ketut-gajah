@@ -448,7 +448,7 @@ async function loadPublicPromos() {
         // 3. Update if changed
         const freshDataString = JSON.stringify(freshData);
         if (cachedData !== freshDataString) {
-            localStorage.setItem('kgb_cache_promos', freshDataString);
+            try { localStorage.setItem('kgb_cache_promos', freshDataString); } catch(e) { console.warn("Cache full"); }
             renderPromosFromData(freshData);
         }
     } catch (error) {
@@ -523,7 +523,7 @@ async function loadPublicServices() {
         const freshDataString = JSON.stringify(freshServices);
         if (cachedData !== freshDataString) {
             cachedServices = freshServices;
-            localStorage.setItem('kgb_cache_services', freshDataString);
+            try { localStorage.setItem('kgb_cache_services', freshDataString); } catch(e) { console.warn("Cache full"); }
             
             globalServiceCount = cachedServices.length;
             applyTranslations(currentLang);
@@ -700,7 +700,7 @@ async function loadPublicMoments() {
         // 3. Update if changed
         const freshDataString = JSON.stringify(freshData);
         if (cachedData !== freshDataString) {
-            localStorage.setItem('kgb_cache_moments', freshDataString);
+            try { localStorage.setItem('kgb_cache_moments', freshDataString); } catch(e) { console.warn("Cache full"); }
             renderMomentsFromData(freshData);
         }
     } catch (error) {

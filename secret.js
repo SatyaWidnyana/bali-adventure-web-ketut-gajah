@@ -264,7 +264,7 @@ async function loadServices() {
         const querySnapshot = await getDocs(q);
         const freshItems = renderServicesTable(querySnapshot);
         // Cache the fresh data
-        localStorage.setItem('kgb_admin_services', JSON.stringify(freshItems));
+        try { localStorage.setItem('kgb_admin_services', JSON.stringify(freshItems)); } catch(e) { console.warn("Cache full"); }
     } catch (error) {
         console.error("Error loading services: ", error);
         if (!cachedData) servicesTableBody.innerHTML = '<tr><td colspan="4">Error loading data.</td></tr>';
@@ -483,7 +483,7 @@ async function loadPromos() {
         const q = query(collection(db, "promos"), orderBy("createdAt", "asc"));
         const querySnapshot = await getDocs(q);
         const freshItems = renderPromosGrid(querySnapshot);
-        localStorage.setItem('kgb_admin_promos', JSON.stringify(freshItems));
+        try { localStorage.setItem('kgb_admin_promos', JSON.stringify(freshItems)); } catch(e) { console.warn("Cache full"); }
     } catch (error) {
         console.error("Error loading promos: ", error);
         if (!cachedData) promoGrid.innerHTML = '<p>Error loading promos.</p>';
@@ -594,7 +594,7 @@ async function loadMoments() {
         const q = query(collection(db, "moments"), orderBy("createdAt", "asc"));
         const querySnapshot = await getDocs(q);
         const freshItems = renderMomentsGrid(querySnapshot);
-        localStorage.setItem('kgb_admin_moments', JSON.stringify(freshItems));
+        try { localStorage.setItem('kgb_admin_moments', JSON.stringify(freshItems)); } catch(e) { console.warn("Cache full"); }
     } catch (error) {
         console.error("Error loading moments: ", error);
         if (!cachedData) momentGrid.innerHTML = '<p>Error loading moments.</p>';
