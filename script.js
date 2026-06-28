@@ -398,33 +398,58 @@ langToggleBtn.addEventListener('click', () => {
 // FIREBASE DATA FETCHING (PUBLIC SITE)
 // ============================================================
 
-async function loadPublicPromos() {
+function renderPromosFromData(promosData) {
     const promoSection = document.getElementById('promos');
     const promoGrid = document.getElementById('publicPromosGrid');
     if (!promoSection || !promoGrid) return;
 
+    if (promosData.length > 0) {
+        promoSection.style.display = 'block';
+        promoGrid.innerHTML = '';
+        promosData.forEach((data) => {
+            const card = document.createElement('div');
+            card.className = 'promo-card-public animate-on-scroll visible';
+            card.style.cursor = 'pointer';
+            card.onclick = () => openPromoLightbox(data.imageUrl);
+            card.innerHTML = `
+                <img src="${escapeHTML(data.imageUrl || '')}" alt="Promo Flyer">
+                <div class="promo-glass-overlay">
+                    <h3>${escapeHTML(data.title || 'Special Promo')}</h3>
+                </div>
+            `;
+            promoGrid.appendChild(card);
+        });
+    } else {
+        promoSection.style.display = 'none';
+    }
+}
+
+async function loadPublicPromos() {
+    // 1. Load from cache instantly
+    const cachedData = localStorage.getItem('kgb_cache_promos');
+    if (cachedData) {
+        try {
+            renderPromosFromData(JSON.parse(cachedData));
+        } catch (e) {
+            console.error('Cache error', e);
+        }
+    }
+
+    // 2. Fetch fresh data in background
     try {
         const q = query(collection(db, "promos"), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
+        
+        const freshData = [];
+        querySnapshot.forEach((docSnap) => {
+            freshData.push(docSnap.data());
+        });
 
-        if (!querySnapshot.empty) {
-            promoSection.style.display = 'block'; // Show section only if promos exist
-            promoGrid.innerHTML = '';
-
-            querySnapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const card = document.createElement('div');
-                card.className = 'promo-card-public animate-on-scroll visible'; // visible instantly to avoid observer issues when dynamically added
-                card.style.cursor = 'pointer';
-                card.onclick = () => openPromoLightbox(data.imageUrl);
-                card.innerHTML = `
-                    <img src="${escapeHTML(data.imageUrl || '')}" alt="Promo Flyer">
-                    <div class="promo-glass-overlay">
-                        <h3>${escapeHTML(data.title || 'Special Promo')}</h3>
-                    </div>
-                `;
-                promoGrid.appendChild(card);
-            });
+        // 3. Update if changed
+        const freshDataString = JSON.stringify(freshData);
+        if (cachedData !== freshDataString) {
+            localStorage.setItem('kgb_cache_promos', freshDataString);
+            renderPromosFromData(freshData);
         }
     } catch (error) {
         console.error("Error fetching promos: ", error);
@@ -473,17 +498,39 @@ let cachedServices = [];
 let isServicesRendered = false;
 
 async function loadPublicServices() {
+    // 1. Load from cache instantly
+    const cachedData = localStorage.getItem('kgb_cache_services');
+    if (cachedData) {
+        try {
+            cachedServices = JSON.parse(cachedData);
+            globalServiceCount = cachedServices.length;
+            applyTranslations(currentLang);
+            renderPublicServices();
+        } catch (e) {
+            console.error('Cache error', e);
+        }
+    }
+
+    // 2. Fetch fresh data in background
     try {
         const q = query(collection(db, "services"), orderBy("createdAt", "asc"));
         const querySnapshot = await getDocs(q);
 
-        cachedServices = [];
-        querySnapshot.forEach(docSnap => cachedServices.push({ id: docSnap.id, ...docSnap.data() }));
-
-        globalServiceCount = cachedServices.length;
-        applyTranslations(currentLang);
-
-        renderPublicServices();
+        const freshServices = [];
+        querySnapshot.forEach(docSnap => freshServices.push({ id: docSnap.id, ...docSnap.data() }));
+        
+        // 3. Update if changed
+        const freshDataString = JSON.stringify(freshServices);
+        if (cachedData !== freshDataString) {
+            cachedServices = freshServices;
+            localStorage.setItem('kgb_cache_services', freshDataString);
+            
+            globalServiceCount = cachedServices.length;
+            applyTranslations(currentLang);
+            
+            isServicesRendered = false; // Force re-render with new data
+            renderPublicServices();
+        }
 
     } catch (error) {
         console.error("Error fetching services: ", error);
@@ -602,37 +649,63 @@ function renderPublicServices() {
 const publicMomentsGrid = document.getElementById('publicMomentsGrid');
 const momentsSection = document.getElementById('moments');
 
+function renderMomentsFromData(momentsData) {
+    if (!publicMomentsGrid || !momentsSection) return;
+    
+    if (momentsData.length === 0) {
+        momentsSection.style.display = 'none';
+        return;
+    }
+
+    momentsSection.style.display = 'block';
+    publicMomentsGrid.innerHTML = ''; 
+    momentsData.forEach((data) => {
+        const safeUrl = sanitizeImageUrl(data.imageUrl || '');
+        const card = document.createElement('div');
+        card.className = 'moment-card';
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => openPromoLightbox(safeUrl));
+        const img = document.createElement('img');
+        img.src = safeUrl;
+        img.alt = escapeHTML(data.title || 'Guest Moment');
+        img.loading = 'lazy';
+        card.appendChild(img);
+        publicMomentsGrid.appendChild(card);
+    });
+}
+
 async function loadPublicMoments() {
     if (!publicMomentsGrid) return;
+
+    // 1. Load from cache instantly
+    const cachedData = localStorage.getItem('kgb_cache_moments');
+    if (cachedData) {
+        try {
+            renderMomentsFromData(JSON.parse(cachedData));
+        } catch (e) {
+            console.error('Cache error', e);
+        }
+    }
+
+    // 2. Fetch fresh data in background
     try {
         const q = query(collection(db, "moments"), orderBy("createdAt", "asc"));
         const querySnapshot = await getDocs(q);
         
-        if (querySnapshot.empty) {
-            momentsSection.style.display = 'none';
-            return;
-        }
-
-        momentsSection.style.display = 'block';
-        publicMomentsGrid.innerHTML = ''; // Clear before re-render
+        const freshData = [];
         querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const safeUrl = sanitizeImageUrl(data.imageUrl || '');
-            const card = document.createElement('div');
-            card.className = 'moment-card';
-            card.style.cursor = 'pointer';
-            // Safe event binding — no inline onclick, prevents XSS
-            card.addEventListener('click', () => openPromoLightbox(safeUrl));
-            const img = document.createElement('img');
-            img.src = safeUrl;
-            img.alt = escapeHTML(data.title || 'Guest Moment');
-            img.loading = 'lazy';
-            card.appendChild(img);
-            publicMomentsGrid.appendChild(card);
+            freshData.push(docSnap.data());
         });
+
+        // 3. Update if changed
+        const freshDataString = JSON.stringify(freshData);
+        if (cachedData !== freshDataString) {
+            localStorage.setItem('kgb_cache_moments', freshDataString);
+            renderMomentsFromData(freshData);
+        }
     } catch (error) {
         console.error("Error loading public moments: ", error);
-        momentsSection.style.display = 'none';
+        if (!cachedData) momentsSection.style.display = 'none';
     }
 }
 

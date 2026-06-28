@@ -211,44 +211,63 @@ document.getElementById('closeServiceModal').addEventListener('click', () => {
     serviceModal.classList.remove('active');
 });
 
+function renderServicesTable(querySnapshotOrArray, isArray = false) {
+    servicesTableBody.innerHTML = "";
+    if (isArray ? querySnapshotOrArray.length === 0 : querySnapshotOrArray.empty) {
+        servicesTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada layanan. Silakan klik tombol "Add Service" untuk menambahkan.</td></tr>';
+        return;
+    }
+    
+    const items = isArray ? querySnapshotOrArray : [];
+    if (!isArray) {
+        querySnapshotOrArray.forEach((docSnap) => {
+            items.push({ id: docSnap.id, ...docSnap.data() });
+        });
+    }
+
+    items.forEach(data => {
+        const id = data.id;
+        const titleEn = escapeHTML(data.title_en || data.title || "No Title (EN)");
+        const descEn = escapeHTML(data.desc_en || data.description || "");
+        const safeId = escapeHTML(id);
+        const tr = document.createElement('tr');
+        tr.id = `row-service-${safeId}`;
+        tr.innerHTML = `
+            <td><img src="${escapeHTML(data.imageUrl || '')}" alt="img" onerror="this.src='https://via.placeholder.com/60x40'"></td>
+            <td>${titleEn}</td>
+            <td>${descEn.substring(0, 50)}...</td>
+            <td>
+                <div class="action-btns">
+                    <button class="btn-edit" data-service-id="${safeId}"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-danger" data-delete-id="${safeId}"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        servicesTableBody.appendChild(tr);
+    });
+    return items;
+}
+
 // Load Services
 async function loadServices() {
-    servicesTableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+    const cachedData = localStorage.getItem('kgb_admin_services');
+    if (cachedData) {
+        try {
+            renderServicesTable(JSON.parse(cachedData), true);
+        } catch(e) {}
+    } else {
+        servicesTableBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+    }
+
     try {
         const q = query(collection(db, "services"), orderBy("createdAt", "asc"));
         const querySnapshot = await getDocs(q);
-        servicesTableBody.innerHTML = "";
-        
-        if (querySnapshot.empty) {
-            servicesTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Belum ada layanan. Silakan klik tombol "Add Service" untuk menambahkan.</td></tr>';
-            return;
-        }
-
-        querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const id = docSnap.id;
-            
-            const titleEn = escapeHTML(data.title_en || data.title || "No Title (EN)");
-            const descEn = escapeHTML(data.desc_en || data.description || "");
-            const safeId = escapeHTML(id);
-            const tr = document.createElement('tr');
-            tr.id = `row-service-${safeId}`;
-            tr.innerHTML = `
-                <td><img src="${escapeHTML(data.imageUrl || '')}" alt="img" onerror="this.src='https://via.placeholder.com/60x40'"></td>
-                <td>${titleEn}</td>
-                <td>${descEn.substring(0, 50)}...</td>
-                <td>
-                    <div class="action-btns">
-                        <button class="btn-edit" data-service-id="${safeId}"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn-danger" data-delete-id="${safeId}"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </td>
-            `;
-            servicesTableBody.appendChild(tr);
-        });
+        const freshItems = renderServicesTable(querySnapshot);
+        // Cache the fresh data
+        localStorage.setItem('kgb_admin_services', JSON.stringify(freshItems));
     } catch (error) {
         console.error("Error loading services: ", error);
-        servicesTableBody.innerHTML = '<tr><td colspan="4">Error loading data.</td></tr>';
+        if (!cachedData) servicesTableBody.innerHTML = '<tr><td colspan="4">Error loading data.</td></tr>';
     }
 }
 
@@ -420,36 +439,54 @@ document.getElementById('closePromoModal').addEventListener('click', () => {
     promoModal.classList.remove('active');
 });
 
+function renderPromosGrid(querySnapshotOrArray, isArray = false) {
+    promoGrid.innerHTML = "";
+    if (isArray ? querySnapshotOrArray.length === 0 : querySnapshotOrArray.empty) {
+        promoGrid.innerHTML = '<p>No promos found.</p>';
+        return;
+    }
+
+    const items = isArray ? querySnapshotOrArray : [];
+    if (!isArray) {
+        querySnapshotOrArray.forEach((docSnap) => {
+            items.push({ id: docSnap.id, ...docSnap.data() });
+        });
+    }
+
+    items.forEach(data => {
+        const id = data.id;
+        const card = document.createElement('div');
+        card.className = 'promo-card';
+        card.innerHTML = `
+            <button class="delete-promo" onclick="deletePromo('${id}', '${data.imagePath || ''}')"><i class="fa-solid fa-trash"></i></button>
+            <img src="${escapeHTML(data.imageUrl || '')}" alt="Promo">
+            <div class="promo-info">
+                <h4>${escapeHTML(data.title || 'Promo Flyer')}</h4>
+            </div>
+        `;
+        promoGrid.appendChild(card);
+    });
+    return items;
+}
+
 async function loadPromos() {
-    promoGrid.innerHTML = '<p>Loading promos...</p>';
+    const cachedData = localStorage.getItem('kgb_admin_promos');
+    if (cachedData) {
+        try {
+            renderPromosGrid(JSON.parse(cachedData), true);
+        } catch(e) {}
+    } else {
+        promoGrid.innerHTML = '<p>Loading promos...</p>';
+    }
+
     try {
         const q = query(collection(db, "promos"), orderBy("createdAt", "asc"));
         const querySnapshot = await getDocs(q);
-        promoGrid.innerHTML = "";
-        
-        if (querySnapshot.empty) {
-            promoGrid.innerHTML = '<p>No promos found.</p>';
-            return;
-        }
-
-        querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const id = docSnap.id;
-            
-            const card = document.createElement('div');
-            card.className = 'promo-card';
-            card.innerHTML = `
-                <button class="delete-promo" onclick="deletePromo('${id}', '${data.imagePath || ''}')"><i class="fa-solid fa-trash"></i></button>
-                <img src="${escapeHTML(data.imageUrl || '')}" alt="Promo">
-                <div class="promo-info">
-                    <h4>${escapeHTML(data.title || 'Promo Flyer')}</h4>
-                </div>
-            `;
-            promoGrid.appendChild(card);
-        });
+        const freshItems = renderPromosGrid(querySnapshot);
+        localStorage.setItem('kgb_admin_promos', JSON.stringify(freshItems));
     } catch (error) {
         console.error("Error loading promos: ", error);
-        promoGrid.innerHTML = '<p>Error loading promos.</p>';
+        if (!cachedData) promoGrid.innerHTML = '<p>Error loading promos.</p>';
     }
 }
 
@@ -512,37 +549,55 @@ document.getElementById('closeMomentModal').addEventListener('click', () => {
     momentModal.classList.remove('active');
 });
 
+function renderMomentsGrid(querySnapshotOrArray, isArray = false) {
+    momentGrid.innerHTML = "";
+    if (isArray ? querySnapshotOrArray.length === 0 : querySnapshotOrArray.empty) {
+        momentGrid.innerHTML = '<p>No moments found.</p>';
+        return;
+    }
+
+    const items = isArray ? querySnapshotOrArray : [];
+    if (!isArray) {
+        querySnapshotOrArray.forEach((docSnap) => {
+            items.push({ id: docSnap.id, ...docSnap.data() });
+        });
+    }
+
+    items.forEach(data => {
+        const id = data.id;
+        const card = document.createElement('div');
+        card.className = 'promo-card';
+        card.innerHTML = `
+            <button class="delete-promo" onclick="deleteMoment('${id}')"><i class="fa-solid fa-trash"></i></button>
+            <img src="${escapeHTML(data.imageUrl || '')}" alt="Moment">
+            <div class="promo-info">
+                <h4>${escapeHTML(data.title || 'Guest Photo')}</h4>
+            </div>
+        `;
+        momentGrid.appendChild(card);
+    });
+    return items;
+}
+
 async function loadMoments() {
     if (!momentGrid) return;
-    momentGrid.innerHTML = '<p>Loading moments...</p>';
+    const cachedData = localStorage.getItem('kgb_admin_moments');
+    if (cachedData) {
+        try {
+            renderMomentsGrid(JSON.parse(cachedData), true);
+        } catch(e) {}
+    } else {
+        momentGrid.innerHTML = '<p>Loading moments...</p>';
+    }
+
     try {
         const q = query(collection(db, "moments"), orderBy("createdAt", "asc"));
         const querySnapshot = await getDocs(q);
-        momentGrid.innerHTML = "";
-        
-        if (querySnapshot.empty) {
-            momentGrid.innerHTML = '<p>No moments found.</p>';
-            return;
-        }
-
-        querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const id = docSnap.id;
-            
-            const card = document.createElement('div');
-            card.className = 'promo-card';
-            card.innerHTML = `
-                <button class="delete-promo" onclick="deleteMoment('${id}')"><i class="fa-solid fa-trash"></i></button>
-                <img src="${escapeHTML(data.imageUrl || '')}" alt="Moment">
-                <div class="promo-info">
-                    <h4>${escapeHTML(data.title || 'Guest Photo')}</h4>
-                </div>
-            `;
-            momentGrid.appendChild(card);
-        });
+        const freshItems = renderMomentsGrid(querySnapshot);
+        localStorage.setItem('kgb_admin_moments', JSON.stringify(freshItems));
     } catch (error) {
         console.error("Error loading moments: ", error);
-        momentGrid.innerHTML = '<p>Error loading moments.</p>';
+        if (!cachedData) momentGrid.innerHTML = '<p>Error loading moments.</p>';
     }
 }
 
