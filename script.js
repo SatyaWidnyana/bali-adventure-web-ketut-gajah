@@ -33,7 +33,7 @@ function escapeHTML(str) {
             "'": '&#39;',
             '"': '&quot;'
         }[tag] || tag)
-    );
+    ).replace(/\n/g, '<br>');
 }
 
 // Validates and sanitizes image URLs to prevent injection

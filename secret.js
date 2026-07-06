@@ -56,7 +56,7 @@ function escapeHTML(str) {
             "'": '&#39;',
             '"': '&quot;'
         }[tag] || tag)
-    );
+    ).replace(/\n/g, '<br>');
 }
 
 // ---------------- IMAGE COMPRESSION UTILITY ---------------- //
