@@ -61,7 +61,7 @@ function escapeHTML(str) {
 
 // ---------------- IMAGE COMPRESSION UTILITY ---------------- //
 // Compress image to Base64 string heavily to avoid QuotaExceededError
-function compressImage(file, maxWidth = 400) {
+function compressImage(file, maxWidth = 1000) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -82,8 +82,8 @@ function compressImage(file, maxWidth = 400) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                // Compress as JPEG 50% quality to ensure extremely small size (10kb - 20kb)
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                // Compress as JPEG 85% quality to ensure good balance of quality and size
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
                 resolve(dataUrl);
             };
             img.onerror = reject;
@@ -301,7 +301,7 @@ serviceForm.addEventListener('submit', async (e) => {
 
         // If file is selected, compress it heavily to base64
         if (fileInput.files.length > 0) {
-            imageUrl = await compressImage(fileInput.files[0], 400);
+            imageUrl = await compressImage(fileInput.files[0], 1000);
         }
 
         const serviceData = {
@@ -518,7 +518,7 @@ promoForm.addEventListener('submit', async (e) => {
     }
 
     try {
-        const imageUrl = await compressImage(fileInput.files[0], 400);
+        const imageUrl = await compressImage(fileInput.files[0], 1000);
 
         await addDoc(collection(db, "promos"), {
             title: title,
@@ -638,7 +638,7 @@ momentForm.addEventListener('submit', async (e) => {
     }
 
     try {
-        const imageUrl = await compressImage(fileInput.files[0], 400);
+        const imageUrl = await compressImage(fileInput.files[0], 1000);
 
         await addDoc(collection(db, "moments"), {
             title: title,
