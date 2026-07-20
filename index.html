@@ -287,6 +287,52 @@
         </div>
     </div>
 
+    <!-- BOOKING MODAL -->
+    <div id="bookingModal" class="promo-lightbox booking-modal-wrapper">
+        <div class="lightbox-overlay" id="bookingOverlay"></div>
+        <div class="booking-modal-content">
+            <button class="lightbox-close" id="bookingClose">&times;</button>
+            <div class="booking-header">
+                <h3 data-i18n="bookingFormTitle">Book Your Journey</h3>
+                <p data-i18n="bookingFormDesc">Fill in the details below and we'll connect you directly to our WhatsApp.</p>
+            </div>
+            <form id="bookingForm" class="booking-form">
+                <div class="form-group">
+                    <label for="bookName" data-i18n="bookLabelName">Full Name *</label>
+                    <input type="text" id="bookName" required placeholder="John Doe">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bookDate" data-i18n="bookLabelDate">Date of Activity *</label>
+                        <input type="date" id="bookDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookPax" data-i18n="bookLabelPax">Number of People *</label>
+                        <input type="number" id="bookPax" required min="1" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="bookService" data-i18n="bookLabelService">Select Activity *</label>
+                    <select id="bookService" required>
+                        <option value="" disabled selected data-i18n="bookOptCustom">-- Select Activity --</option>
+                        <!-- Dynamic options will be injected here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bookLocation" data-i18n="bookLabelLocation">Hotel / Pickup Location *</label>
+                    <input type="text" id="bookLocation" required placeholder="E.g. Ayana Resort, Jimbaran">
+                </div>
+                <div class="form-group">
+                    <label for="bookNotes" data-i18n="bookLabelNotes">Special Requests (Optional)</label>
+                    <textarea id="bookNotes" rows="3" placeholder="Any special needs or questions?"></textarea>
+                </div>
+                <button type="submit" class="btn-glass-dark btn-wa-submit">
+                    <i class="fa-brands fa-whatsapp"></i> <span data-i18n="bookSubmitBtn">Send via WhatsApp</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- FIREBASE & MAIN SCRIPT -->
     <script type="module" src="script.js"></script>
 </body>

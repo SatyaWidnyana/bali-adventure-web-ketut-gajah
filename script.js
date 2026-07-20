@@ -278,7 +278,17 @@ const translations = {
         momentsEyebrow: "Shared Smiles",
         momentsTitle: "Our Moments",
         footerTag: "\"Your Smile is Our Happiness\"",
-        copyText: "&copy; 2026 KETUT GAJAH BALI — ALL RIGHTS RESERVED"
+        copyText: "&copy; 2026 KETUT GAJAH BALI — ALL RIGHTS RESERVED",
+        bookingFormTitle: "Book Your Journey",
+        bookingFormDesc: "Fill in the details below and we'll connect you directly to our WhatsApp.",
+        bookLabelName: "Full Name *",
+        bookLabelDate: "Date of Activity *",
+        bookLabelPax: "Number of People *",
+        bookLabelService: "Select Activity *",
+        bookOptCustom: "-- Select Activity --",
+        bookLabelLocation: "Hotel / Pickup Location *",
+        bookLabelNotes: "Special Requests (Optional)",
+        bookSubmitBtn: "Send via WhatsApp"
     },
     id: {
         title: "Ketut Gajah Bali | Perjalanan Autentik di Pulau Dewata",
@@ -331,7 +341,17 @@ const translations = {
         momentsEyebrow: "Senyum Bersama",
         momentsTitle: "Momen Kami",
         footerTag: "\"Senyum Anda adalah Kebahagiaan Kami\"",
-        copyText: "&copy; 2026 KETUT GAJAH BALI — HAK CIPTA DILINDUNGI"
+        copyText: "&copy; 2026 KETUT GAJAH BALI — HAK CIPTA DILINDUNGI",
+        bookingFormTitle: "Pesan Perjalanan Anda",
+        bookingFormDesc: "Isi detail di bawah ini dan kami akan menghubungkan Anda langsung ke WhatsApp kami.",
+        bookLabelName: "Nama Lengkap *",
+        bookLabelDate: "Tanggal Aktivitas *",
+        bookLabelPax: "Jumlah Orang *",
+        bookLabelService: "Pilih Aktivitas *",
+        bookOptCustom: "-- Pilih Aktivitas --",
+        bookLabelLocation: "Hotel / Lokasi Penjemputan *",
+        bookLabelNotes: "Permintaan Khusus (Opsional)",
+        bookSubmitBtn: "Kirim via WhatsApp"
     }
 };
 
@@ -642,6 +662,22 @@ function renderPublicServices() {
 
     dynamicContainer.innerHTML = detailedSectionsHtml;
 
+    // 3. Populate Booking Form Dropdown
+    const selectEl = document.getElementById('bookService');
+    if (selectEl) {
+        const defaultOption = selectEl.querySelector('option[value=""]');
+        selectEl.innerHTML = '';
+        if (defaultOption) selectEl.appendChild(defaultOption);
+        
+        cachedServices.forEach((data) => {
+            const title = currentLang === 'id' ? (data.title_id || data.title_en || data.title) : (data.title_en || data.title);
+            const opt = document.createElement('option');
+            opt.value = title;
+            opt.textContent = title;
+            selectEl.appendChild(opt);
+        });
+    }
+
     // Re-observe new elements for scroll animation
     const newAnimatedElements = dynamicContainer.querySelectorAll('.animate-on-scroll');
     newAnimatedElements.forEach(el => observer.observe(el));
@@ -715,3 +751,109 @@ async function loadPublicMoments() {
 
 // Initial calls
 loadPublicMoments();
+
+// ============================================================
+// BOOKING MODAL LOGIC
+// ============================================================
+const bookingModal = document.getElementById('bookingModal');
+const bookingOverlay = document.getElementById('bookingOverlay');
+const bookingClose = document.getElementById('bookingClose');
+const bookingForm = document.getElementById('bookingForm');
+
+function openBookingModal(serviceName = null) {
+    if (bookingModal) {
+        bookingModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Set minimum date to today (local time)
+        const bookDateInput = document.getElementById('bookDate');
+        if (bookDateInput) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            bookDateInput.setAttribute('min', `${yyyy}-${mm}-${dd}`);
+        }
+        
+        if (serviceName) {
+            const selectEl = document.getElementById('bookService');
+            if (selectEl) {
+                for(let i = 0; i < selectEl.options.length; i++) {
+                    if(selectEl.options[i].value === serviceName || selectEl.options[i].text === serviceName) {
+                        selectEl.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+function closeBookingModal() {
+    if (bookingModal) {
+        bookingModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+if (bookingOverlay) bookingOverlay.addEventListener('click', closeBookingModal);
+if (bookingClose) bookingClose.addEventListener('click', closeBookingModal);
+
+// Intercept all WA clicks dynamically
+document.body.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (link && link.href && link.href.includes('wa.me')) {
+        e.preventDefault();
+        
+        let serviceName = null;
+        const section = link.closest('.unified-service-section');
+        if (section) {
+            const titleEl = section.querySelector('.giant-text');
+            if (titleEl) serviceName = titleEl.textContent;
+        }
+        
+        openBookingModal(serviceName);
+    }
+});
+
+// Handle Form Submission
+if (bookingForm) {
+    bookingForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('bookName').value;
+        const date = document.getElementById('bookDate').value;
+        const pax = document.getElementById('bookPax').value;
+        const service = document.getElementById('bookService').value;
+        const location = document.getElementById('bookLocation').value;
+        const notes = document.getElementById('bookNotes').value;
+        
+        const hour = new Date().getHours();
+        let timeGreetingEn = 'Good night';
+        let timeGreetingId = 'Selamat malam';
+        
+        if (hour >= 3 && hour < 12) {
+            timeGreetingEn = 'Good morning';
+            timeGreetingId = 'Selamat pagi';
+        } else if (hour >= 12 && hour < 17) {
+            timeGreetingEn = 'Good afternoon';
+            timeGreetingId = 'Selamat siang';
+        } else if (hour >= 17 && hour < 20) {
+            timeGreetingEn = 'Good evening';
+            timeGreetingId = 'Selamat sore';
+        }
+
+        const intro = currentLang === 'id' 
+            ? `${timeGreetingId}! 👋 Saya tertarik untuk memesan perjalanan dengan Ketut Gajah Bali Adventure. Berikut detail saya:`
+            : `${timeGreetingEn}! 👋 I'm interested in booking a trip with Ketut Gajah Bali Adventure. Here are my details:`;
+        
+        const text = `${intro}\n\n*Name:* ${name}\n*Date:* ${date}\n*Service:* ${service}\n*Pax:* ${pax} persons\n*Pickup/Hotel:* ${location}\n*Notes:* ${notes || '-'}`;
+        
+        const encodedText = encodeURIComponent(text);
+        const waUrl = `${TRUSTED_WA_URL}?text=${encodedText}`;
+        
+        window.open(waUrl, '_blank');
+        closeBookingModal();
+        bookingForm.reset();
+    });
+}
