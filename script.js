@@ -282,6 +282,7 @@ const translations = {
         bookingFormTitle: "Book Your Journey",
         bookingFormDesc: "Fill in the details below and we'll connect you directly to our WhatsApp.",
         bookLabelName: "Full Name *",
+        bookLabelCountry: "Country of Origin *",
         bookLabelDate: "Date of Activity *",
         bookLabelPax: "Number of People *",
         bookLabelService: "Select Activity *",
@@ -345,6 +346,7 @@ const translations = {
         bookingFormTitle: "Pesan Perjalanan Anda",
         bookingFormDesc: "Isi detail di bawah ini dan kami akan menghubungkan Anda langsung ke WhatsApp kami.",
         bookLabelName: "Nama Lengkap *",
+        bookLabelCountry: "Negara Asal *",
         bookLabelDate: "Tanggal Aktivitas *",
         bookLabelPax: "Jumlah Orang *",
         bookLabelService: "Pilih Aktivitas *",
@@ -822,6 +824,7 @@ if (bookingForm) {
         e.preventDefault();
         
         const name = document.getElementById('bookName').value;
+        const country = document.getElementById('bookCountry').value;
         const date = document.getElementById('bookDate').value;
         const pax = document.getElementById('bookPax').value;
         const service = document.getElementById('bookService').value;
@@ -847,7 +850,7 @@ if (bookingForm) {
             ? `${timeGreetingId}! 👋 Saya tertarik untuk memesan perjalanan dengan Ketut Gajah Bali Adventure. Berikut detail saya:`
             : `${timeGreetingEn}! 👋 I'm interested in booking a trip with Ketut Gajah Bali Adventure. Here are my details:`;
         
-        const text = `${intro}\n\n*Name:* ${name}\n*Date:* ${date}\n*Service:* ${service}\n*Pax:* ${pax} persons\n*Pickup/Hotel:* ${location}\n*Notes:* ${notes || '-'}`;
+        const text = `${intro}\n\n*Name:* ${name}\n*Country:* ${country}\n*Date:* ${date}\n*Service:* ${service}\n*Pax:* ${pax} persons\n*Pickup/Hotel:* ${location}\n*Notes:* ${notes || '-'}`;
         
         const encodedText = encodeURIComponent(text);
         const waUrl = `${TRUSTED_WA_URL}?text=${encodedText}`;
